@@ -1,6 +1,45 @@
 version: 1
 language: nl
 categories:
+  bsn:
+    severity: high
+    rules:
+      - id: bsn.with_spaces
+        pattern: \b\d{3}\s?\d{2}\s?\d{4}\b
+        explanation: Bevat mogelijk een BSN-nummer (9 cijfers, met of zonder spaties).
+      - id: bsn.with_dots
+        pattern: \b\d{3}\.\d{2}\.\d{4}\b
+        explanation: Bevat mogelijk een BSN-nummer (gescheiden door punten).
+      - id: bsn.with_dashes
+        pattern: \b\d{3}-\d{2}-\d{4}\b
+        explanation: Bevat mogelijk een BSN-nummer (gescheiden door streepjes).
+
+  phone:
+    severity: medium
+    rules:
+      - id: phone.nl_mobile
+        pattern: (?:\+31|0031|0)\s?6[\s-]?\d{8}
+        explanation: Bevat een Nederlands mobiel telefoonnummer.
+      - id: phone.nl_landline
+        pattern: (?:\+31|0031|0)\s?(?:[1-5789]\d)[\s-]?\d{7}
+        explanation: Bevat een Nederlands vast telefoonnummer.
+      - id: phone.international
+        pattern: \+\d{1,3}\s?\d{1,14}
+        explanation: Bevat een internationaal telefoonnummer.
+
+  name:
+    severity: high
+    rules:
+      - id: name.full_dutch
+        pattern: (?i)\b(?:dhr|mevr|mr|mw|de heer|mevrouw)\.?\s+(?:[A-Z][a-z]+(?:\s+(?:van|de|der|den|te|ter|het|het\'t|van\s+de|van\s+den|van\s+der)\s+)?){1,3}[A-Z][a-z]+\b
+        explanation: Bevat mogelijk een volledige Nederlandse naam met aanhef.
+      - id: name.initials
+        pattern: \b[A-Z]\.\s?(?:[A-Z]\.\s?)*[A-Z][a-z]{2,}\b
+        explanation: Bevat mogelijk een naam met initialen (bijv. J.P. Jansen).
+      - id: name.tussenvoegsel
+        pattern: \b[A-Z][a-z]+\s+(?:van|de|der|den|te|ter|het|van\s+de|van\s+den|van\s+der)\s+[A-Z][a-z]+\b
+        explanation: Bevat mogelijk een Nederlandse achternaam met tussenvoegsel.
+
   email:
     severity: medium
     rules:
@@ -8,10 +47,124 @@ categories:
         pattern: (?i)\b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b
         explanation: Bevat een e-mailadres.
 
+  company:
+    severity: medium
+    rules:
+      - id: company.bv
+        pattern: (?i)\b[A-Z][A-Za-z0-9\s&]+\s+B\.?V\.?\b
+        explanation: Bevat mogelijk een bedrijfsnaam (B.V.).
+      - id: company.nv
+        pattern: (?i)\b[A-Z][A-Za-z0-9\s&]+\s+N\.?V\.?\b
+        explanation: Bevat mogelijk een bedrijfsnaam (N.V.).
+      - id: company.vof
+        pattern: (?i)\b[A-Z][A-Za-z0-9\s&]+\s+V\.?O\.?F\.?\b
+        explanation: Bevat mogelijk een bedrijfsnaam (V.O.F.).
+      - id: company.kvk
+        pattern: (?i)(?:KVK|kvk-nummer|kamer\s+van\s+koophandel)[\s:-]*\d{8}
+        explanation: Bevat een KVK-nummer (Kamer van Koophandel).
+
+  address:
+    severity: medium
+    rules:
+      - id: address.postcode
+        pattern: \b\d{4}\s?[A-Z]{2}\b
+        explanation: Bevat een Nederlandse postcode.
+      - id: address.street_number
+        pattern: (?i)\b(?:[A-Z][a-z]+(?:straat|laan|weg|plein|park|gracht|kade|singel))\s+\d{1,4}(?:\s?[A-Za-z]{1,2})?\b
+        explanation: Bevat mogelijk een straatadres met huisnummer.
+
+  financial:
+    severity: high
+    rules:
+      - id: financial.iban
+        pattern: \b[A-Z]{2}\d{2}\s?[A-Z0-9]{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{0,2}\b
+        explanation: Bevat een IBAN bankrekeningnummer.
+      - id: financial.iban_nl
+        pattern: \bNL\d{2}\s?[A-Z]{4}\s?\d{4}\s?\d{4}\s?\d{2}\b
+        explanation: Bevat een Nederlands IBAN nummer.
+      - id: financial.btw
+        pattern: \b(?:BTW|btw-nummer|btw-id)[\s:-]*NL\d{9}B\d{2}\b
+        explanation: Bevat een BTW-nummer (belastingnummer).
+      - id: financial.credit_card
+        pattern: \b(?:\d{4}[\s-]?){3}\d{4}\b
+        explanation: Bevat mogelijk een creditcardnummer (16 cijfers).
+
+  identification:
+    severity: high
+    rules:
+      - id: id.passport
+        pattern: \b[A-Z]{2}[A-Z0-9]{6,7}\b
+        explanation: Bevat mogelijk een paspoortnummer.
+      - id: id.rijbewijs
+        pattern: \b\d{10}\b
+        explanation: Bevat mogelijk een rijbewijsnummer (10 cijfers).
+      - id: id.bsn_context
+        pattern: (?i)(?:burger\s?service\s?nummer|sofi\s?nummer|bsn)[\s:-]*\d{9}
+        explanation: Bevat een BSN met context label.
+
+  health:
+    severity: critical
+    rules:
+      - id: health.insurance
+        pattern: (?i)(?:zorgverzekering|verzekeringsnummer|polisnummer)[\s:-]*\d{8,10}
+        explanation: Bevat mogelijk een zorgverzekeringsnummer.
+      - id: health.medication
+        pattern: (?i)\b(?:medicijn|medicatie|voorschrift)[\s:-]+[A-Z][a-z]+
+        explanation: Bevat mogelijk medicatie informatie.
+
+  credentials:
+    severity: critical
+    rules:
+      - id: credentials.api_key
+        pattern: (?i)(?:api[_-]?key|apikey)[\s=:'"]+[A-Za-z0-9_\-]{16,64}
+        explanation: Bevat een API key.
+      - id: credentials.bearer_token
+        pattern: (?i)bearer\s+[A-Za-z0-9\-._~+/]+=*
+        explanation: Bevat een Bearer authentication token.
+      - id: credentials.password
+        pattern: (?i)(?:password|wachtwoord|passwd|pwd)[\s=:'"]+\S{4,}
+        explanation: Bevat mogelijk een wachtwoord.
+      - id: credentials.jwt
+        pattern: eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+
+        explanation: Bevat een JWT token.
+      - id: credentials.ssh_key
+        pattern: -----BEGIN (?:RSA|DSA|EC|OPENSSH) PRIVATE KEY-----
+        explanation: Bevat een SSH private key.
+
+  mac_address:
+    severity: medium
+    rules:
+      - id: mac.standard
+        pattern: \b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b
+        explanation: Bevat een MAC-adres (hardware identifier).
+
+  vehicle:
+    severity: medium
+    rules:
+      - id: vehicle.license_plate
+        pattern: \b[A-Z0-9]{1,3}-[A-Z0-9]{1,3}-[A-Z0-9]{1,3}\b
+        explanation: Bevat mogelijk een Nederlands kenteken.
+
+  datetime:
+    severity: low
+    rules:
+      - id: datetime.birth_date
+        pattern: (?i)(?:geboren|geboortedatum|birth\s?date)[\s:-]*\d{1,2}[-/]\d{1,2}[-/]\d{2,4}
+        explanation: Bevat een geboortedatum met context.
+
   ip:
     severity: medium
     rules:
       - id: ip.v4
         pattern: \b(?:(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\b
         explanation: Bevat een IPv4-adres.
+      - id: ip.v6
+        pattern: (?i)(?:[0-9a-f]{1,4}:){7}[0-9a-f]{1,4}|(?:[0-9a-f]{1,4}:){1,7}:|(?:[0-9a-f]{1,4}:){1,6}:[0-9a-f]{1,4}|(?:[0-9a-f]{1,4}:){1,5}(?::[0-9a-f]{1,4}){1,2}|(?:[0-9a-f]{1,4}:){1,4}(?::[0-9a-f]{1,4}){1,3}|(?:[0-9a-f]{1,4}:){1,3}(?::[0-9a-f]{1,4}){1,4}|(?:[0-9a-f]{1,4}:){1,2}(?::[0-9a-f]{1,4}){1,5}|[0-9a-f]{1,4}:(?:(?::[0-9a-f]{1,4}){1,6})|:(?:(?::[0-9a-f]{1,4}){1,7}|:)|fe80:(?::[0-9a-f]{0,4}){0,4}%[0-9a-z]+|::(?:ffff(?::0{1,4})?:)?(?:(?:25[0-5]|(?:2[0-4]|1?[0-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1?[0-9])?[0-9])|(?:[0-9a-f]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1?[0-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1?[0-9])?[0-9])
+        explanation: Bevat een IPv6-adres.
+      - id: ip.v4_private
+        pattern: \b(?:10\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d)|172\.(?:1[6-9]|2\d|3[01])\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d)|192\.168\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d))\b
+        explanation: Bevat een privé IPv4-adres (10.x.x.x, 172.16-31.x.x, 192.168.x.x).
+      - id: ip.localhost
+        pattern: \b(?:127\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d)\.(?:25[0-5]|2[0-4]\d|[01]?\d?\d)|::1|localhost)\b
+        explanation: Bevat een localhost/loopback adres.
 
