@@ -1,0 +1,5 @@
+prompt-toolkit==3.0.43
+pyyaml==6.0.1
+rich==13.7.1
+click==8.1.7
+typer==0.12.3
