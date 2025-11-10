@@ -1,5 +1,7 @@
 """Command line interface for interacting with the guardrail pipeline."""
 
+# docker run -it pii-guardrails:latest --rules-path /app/rules_nl.yaml
+
 from __future__ import annotations
 
 import json
